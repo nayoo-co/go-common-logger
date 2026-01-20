@@ -69,7 +69,7 @@ func LogDebugMessage(traceID, componentName, message, status, level string) {
 		Line:        line,
 		Filename:    filename,
 		Hostname:    getHostname(),
-		LoggingTime: time.Now().UTC(),
+		LoggingTime: time.Now(),
 		Status:      status,
 		Message:     message,
 		Application: componentName,
@@ -82,7 +82,7 @@ func LoggingMiddleware(componentName string) gin.HandlerFunc {
 		traceID := span.SpanContext().TraceID().String()
 		spanID := span.SpanContext().SpanID().String()
 
-		startTime := time.Now().UTC()
+		startTime := time.Now()
 
 		var requestBody []byte
 		if c.Request.Body != nil {
@@ -95,7 +95,7 @@ func LoggingMiddleware(componentName string) gin.HandlerFunc {
 
 		c.Next()
 
-		endTime := time.Now().UTC()
+		endTime := time.Now()
 
 		txn := TransactionData{
 			Status:         c.Writer.Status(),
