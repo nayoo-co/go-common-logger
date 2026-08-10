@@ -4,7 +4,7 @@ A Go package for common logging, specifically for the Gin framework with OpenTel
 
 ## Features
 
-- Log transaction logs for HTTP requests and responses
+- Log transaction metadata for HTTP requests and responses
 - Log debug logs with trace ID from OpenTelemetry
 - Middleware for Gin that automatically logs request/response data
 - Supports JSON format for logs
@@ -31,12 +31,16 @@ r.Use(logger.LoggingMiddleware("my-app"))
 ```
 
 This middleware will log transaction data for every request, including:
-- Request/Response body
-- Headers
+- A conservative allowlist of non-sensitive request/response headers
 - Trace ID and Span ID from OpenTelemetry
 - Duration
 - Status code
 - And more
+
+Request and response bodies are suppressed. Credential-bearing header names are retained with
+`[REDACTED]` values, and headers outside the safe allowlist are omitted. Header maps passed to the
+logger are never mutated. `ApiUrl` contains the matched route template without query parameters or
+dynamic path values; unmatched requests use the stable value `<unmatched>`.
 
 ### Logging Debug Messages
 
@@ -61,6 +65,8 @@ txn := logger.TransactionData{
 }
 logger.LogTransaction(txn)
 ```
+
+The same body suppression and header sanitization defaults apply to manually logged transactions.
 
 ### Logging Debug Data Manually
 
